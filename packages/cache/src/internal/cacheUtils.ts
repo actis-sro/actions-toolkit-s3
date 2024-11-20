@@ -2,11 +2,11 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as glob from '@actions/glob'
 import * as io from '@actions/io'
+import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as semver from 'semver'
 import * as util from 'util'
-import {v4 as uuidV4} from 'uuid'
 import {
   CacheFilename,
   CompressionMethod,
@@ -34,7 +34,7 @@ export async function createTempDirectory(): Promise<string> {
     tempDirectory = path.join(baseLocation, 'actions', 'temp')
   }
 
-  const dest = path.join(tempDirectory, uuidV4())
+  const dest = path.join(tempDirectory, crypto.randomUUID())
   await io.mkdirP(dest)
   return dest
 }
@@ -144,5 +144,11 @@ export function isGhes(): boolean {
   const ghUrl = new URL(
     process.env['GITHUB_SERVER_URL'] || 'https://github.com'
   )
-  return ghUrl.hostname.toUpperCase() !== 'GITHUB.COM'
+
+  const hostname = ghUrl.hostname.trimEnd().toUpperCase()
+  const isGitHubHost = hostname === 'GITHUB.COM'
+  const isGheHost =
+    hostname.endsWith('.GHE.COM') || hostname.endsWith('.GHE.LOCALHOST')
+
+  return !isGitHubHost && !isGheHost
 }
