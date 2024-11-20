@@ -90,7 +90,7 @@ export function getCacheVersion(
   compressionMethod?: CompressionMethod,
   enableCrossOsArchive = false
 ): string {
-  const components = paths
+  const components = paths.slice()
 
   // Add compression method to cache version to restore
   // compressed cache as per compression method
